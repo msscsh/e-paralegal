@@ -45,6 +45,7 @@ def recuperar_processos_no_arquivo():
 lista_processos = recuperar_processos_no_arquivo()
 for numero_processo in lista_processos:
 	if len(numero_processo) == 25:
+		data_planilha_crua = '01/01/0001'
 		data_ultima_movimentacao = get_data_ultima_movimentacao(numero_processo)
 		data_consultada = datetime.strptime(data_ultima_movimentacao, '%d/%m/%Y').date()
 		data_planilha = datetime.strptime(data_planilha_crua, '%d/%m/%Y').date()
