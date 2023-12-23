@@ -2,11 +2,12 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
 
 from webdriver_manager.chrome import ChromeDriverManager
 
 import pandas as pd
+
+import time
 
 def get_data_ultima_movimentacao(numero_processo):
 	options = Options()
@@ -29,13 +30,9 @@ def get_data_ultima_movimentacao(numero_processo):
 	'submit=Consultar'
 
 	driver.get(url)
-	print(driver.title)
-
+	time.sleep(5)
 	celulas = driver.find_elements(By.CLASS_NAME, 'historicoProcesso')
 	return celulas[1].text
-
-	driver.close()
-	driver.quit()
 
 def recuperar_processos_no_arquivo():
 	caminho_do_arquivo = './src/consultas/tst_num_unica/planilha.xlsx'
