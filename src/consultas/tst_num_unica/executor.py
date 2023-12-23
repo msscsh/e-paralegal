@@ -2,6 +2,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
 
 from webdriver_manager.chrome import ChromeDriverManager
 
@@ -19,8 +20,8 @@ def get_data_ultima_movimentacao(numero_processo):
 	url = f'https://consultaprocessual.tst.jus.br/consultaProcessual/consultaTstNumUnica.do?'\
 	'consulta=Consultar&'\
 	'conscsjt=&'\
-	f'numeroTst={parte_do_numero_do_processo[0].split('-')[0]}&'\
-	f'digitoTst={parte_do_numero_do_processo[0].split('-')[1]}&'\
+	f'numeroTst={parte_do_numero_do_processo[0].split("-")[0]}&'\
+	f'digitoTst={parte_do_numero_do_processo[0].split("-")[1]}&'\
 	f'anoTst={parte_do_numero_do_processo[1]}&'\
 	f'orgaoTst={parte_do_numero_do_processo[2]}&'\
 	f'tribunalTst={parte_do_numero_do_processo[3]}&'\
