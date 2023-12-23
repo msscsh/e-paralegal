@@ -11,7 +11,7 @@ import time
 
 from datetime import datetime
 
-def get_data_ultima_movimentacao(numero_processo):
+def get_dados_da_ultima_movimentacao(numero_processo):
 	options = Options()
 	options.add_argument('--headless')
 	options.add_argument('--no-sandbox')
@@ -34,30 +34,39 @@ def get_data_ultima_movimentacao(numero_processo):
 	driver.get(url)
 	time.sleep(5)
 	celulas = driver.find_elements(By.CLASS_NAME, 'historicoProcesso')
-	return celulas[1].text
 
-def recuperar_processos_no_arquivo():
-	caminho_do_arquivo = './src/consultas/tst_num_unica/planilha.xlsx'
-	df = pd.read_excel(caminho_do_arquivo, header=None, skiprows=4)
+	dados_ultima_movimentacao = []
+	dados_ultima_movimentacao.append(celulas[1].text)
+	dados_ultima_movimentacao.append(celulas[2].text)
+
+	return dados_ultima_movimentacao
+
+def recuperar_processos_do_dataframe(df):
 	if 0 in df.columns:
 		return df[1].tolist()
 
-lista_processos = recuperar_processos_no_arquivo()
+def criar_dataframe_da_planilha(criar_dataframe_da_planilha):
+	caminho_do_arquivo = './src/consultas/tst_num_unica/planilha.xlsx'
+	df = pd.read_excel(caminho_do_arquivo, header=None, skiprows=criar_dataframe_da_planilha)
+	return df
+
+def escrever_dados_na_linha_da_planilha(dados, df, index, coluna_nome):
+	caminho_do_arquivo = './src/consultas/tst_num_unica/planilha.xlsx'
+	df.at[index, coluna_nome] = dados
+	df.to_excel(caminho_do_arquivo, index=False)
+
+linhas_offset = 4
+df = criar_dataframe_da_planilha(linhas_offset)
+lista_processos = recuperar_processos_do_dataframe(df)
+index = linhas_offset;
+
+print(df)
+
 for numero_processo in lista_processos:
+	index += 1
 	if len(numero_processo) == 25:
-		data_planilha_crua = '01/01/0001'
-		data_ultima_movimentacao = get_data_ultima_movimentacao(numero_processo)
-		data_consultada = datetime.strptime(data_ultima_movimentacao, '%d/%m/%Y').date()
-		data_planilha = datetime.strptime(data_planilha_crua, '%d/%m/%Y').date()
-
-		if data_consultada < data_planilha:
-		    print(f'A data {data_ultima_movimentacao} é anterior à {data_planilha_crua}.')
-		elif data_consultada == data_planilha:
-		    print(f'A data {data_ultima_movimentacao} é igual à  {data_planilha_crua}.')
-		else:
-		    print(f'A data {data_ultima_movimentacao} é posterior à  {data_planilha_crua}.')
-
-
-		print(data_ultima_movimentacao)
+		dados_ultima_movimentacao = get_dados_da_ultima_movimentacao(numero_processo)
+		escrever_dados_na_linha_da_planilha(dados_ultima_movimentacao[0], df, index, 'E')
+		escrever_dados_na_linha_da_planilha(dados_ultima_movimentacao[1], df, index, 'F')
 	else:
 		print(f'Numero de processo inválido: {numero_processo}')
