@@ -14,15 +14,17 @@ def get_data_ultima_movimentacao(numero_processo):
 	options.add_argument('--disable-dev-shm-usage')
 	driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 
+	parte_do_numero_do_processo = numero_processo.split('.')
+
 	url = f'https://consultaprocessual.tst.jus.br/consultaProcessual/consultaTstNumUnica.do?'\
 	'consulta=Consultar&'\
 	'conscsjt=&'\
-	'numeroTst=0000603&'\
-	'digitoTst=86&'\
-	'anoTst=2019&'\
-	'orgaoTst=5&'\
-	'tribunalTst=17&'\
-	'varaTst=0009&'\
+	f'numeroTst={parte_do_numero_do_processo[0].split('-')[0]}&'\
+	f'digitoTst={parte_do_numero_do_processo[0].split('-')[1]}&'\
+	f'anoTst={parte_do_numero_do_processo[1]}&'\
+	f'orgaoTst={parte_do_numero_do_processo[2]}&'\
+	f'tribunalTst={parte_do_numero_do_processo[3]}&'\
+	f'varaTst={parte_do_numero_do_processo[4]}&'\
 	'submit=Consultar'
 
 	driver.get(url)
