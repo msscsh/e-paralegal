@@ -9,6 +9,8 @@ import pandas as pd
 
 import time
 
+from datetime import datetime
+
 def get_data_ultima_movimentacao(numero_processo):
 	options = Options()
 	options.add_argument('--headless')
@@ -44,6 +46,17 @@ lista_processos = recuperar_processos_no_arquivo()
 for numero_processo in lista_processos:
 	if len(numero_processo) == 25:
 		data_ultima_movimentacao = get_data_ultima_movimentacao(numero_processo)
+		data_consultada = datetime.strptime(data_ultima_movimentacao, '%d/%m/%Y').date()
+		data_planilha = datetime.strptime(data_planilha_crua, '%d/%m/%Y').date()
+
+		if data_consultada < data_planilha:
+		    print(f'A data {data_ultima_movimentacao} é anterior à {data_planilha_crua}.')
+		elif data_consultada == data_planilha:
+		    print(f'A data {data_ultima_movimentacao} é igual à  {data_planilha_crua}.')
+		else:
+		    print(f'A data {data_ultima_movimentacao} é posterior à  {data_planilha_crua}.')
+
+
 		print(data_ultima_movimentacao)
 	else:
 		print(f'Numero de processo inválido: {numero_processo}')
