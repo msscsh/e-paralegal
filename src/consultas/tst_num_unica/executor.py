@@ -42,5 +42,8 @@ def recuperar_processos_no_arquivo():
 
 lista_processos = recuperar_processos_no_arquivo()
 for numero_processo in lista_processos:
-	data_ultima_movimentacao = get_data_ultima_movimentacao(numero_processo)
-	print(data_ultima_movimentacao)
+	if len(numero_processo) == 25:
+		data_ultima_movimentacao = get_data_ultima_movimentacao(numero_processo)
+		print(data_ultima_movimentacao)
+	else:
+		print(f'Numero de processo inválido: {numero_processo}')
