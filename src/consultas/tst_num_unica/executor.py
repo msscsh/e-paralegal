@@ -41,8 +41,6 @@ def recuperar_processos_no_arquivo():
 		return df[1].tolist()
 
 lista_processos = recuperar_processos_no_arquivo()
-print(len(lista_processos))
-
-numero_processo = ''
-data_ultima_movimentacao = get_data_ultima_movimentacao(numero_processo)
-print(data_ultima_movimentacao)
+for numero_processo in lista_processos:
+	data_ultima_movimentacao = get_data_ultima_movimentacao(numero_processo)
+	print(data_ultima_movimentacao)
