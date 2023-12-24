@@ -39,7 +39,7 @@ def get_dados_da_ultima_movimentacao(numero_processo):
 		'submit=Consultar'
 
 		driver.get(url)
-		time.sleep(2)
+		time.sleep(1)
 		celulas = driver.find_elements(By.CLASS_NAME, 'historicoProcesso')
 		dados_ultima_movimentacao.append(celulas[1].text)
 		dados_ultima_movimentacao.append(celulas[2].text)
@@ -82,20 +82,21 @@ def processar_planilha():
 	while index < len(lista_processos):
 		numero_processo = lista_processos[index]
 		print(f'Index: {index} Processo: {numero_processo}')
+		numero_processo = numero_processo.zfill(25)
+
 		if numero_processo in lista_processos_ignorados:
 			print(f'Ignorando processo: {numero_processo}')
 			dados_data.append(' ')
 			dados_fase.append(' ')
-		elif len(numero_processo) == 25:
-			dados_ultima_movimentacao = get_dados_da_ultima_movimentacao(numero_processo)
-			if len(dados_ultima_movimentacao) > 0:
-				index += 1
-				dados_data.append(dados_ultima_movimentacao[0])
-				dados_fase.append(dados_ultima_movimentacao[1])
-			else:
-				time.sleep(5)
+			index += 1
+
+		dados_ultima_movimentacao = get_dados_da_ultima_movimentacao(numero_processo)
+		if len(dados_ultima_movimentacao) > 0:
+			index += 1
+			dados_data.append(dados_ultima_movimentacao[0])
+			dados_fase.append(dados_ultima_movimentacao[1])
 		else:
-			print(f'Numero de processo inválido: {numero_processo}')
+			time.sleep(3)
 
 	escrever_dados_na_planilha(dados_data, dados_fase)
 
