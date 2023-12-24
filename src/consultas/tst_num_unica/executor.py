@@ -1,3 +1,5 @@
+import re, time
+
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
@@ -6,8 +8,6 @@ from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
 
 import pandas as pd
-
-import time
 
 from openpyxl import Workbook
 from openpyxl.utils.dataframe import dataframe_to_rows
@@ -23,21 +23,21 @@ def get_dados_da_ultima_movimentacao(numero_processo):
 		options.add_argument('--disable-dev-shm-usage')
 		driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 
-		parte_do_numero_do_processo = numero_processo.split('.')
+		texto_formatado = re.sub(r'[^0-9]', '.', numero_processo)
+		parte_do_numero_do_processo = texto_formatado.split('.')
 
 		url = f'https://consultaprocessual.tst.jus.br/consultaProcessual/consultaTstNumUnica.do?'\
 		'consulta=Consultar&'\
 		'conscsjt=&'\
-		f'numeroTst={parte_do_numero_do_processo[0].split("-")[0]}&'\
-		f'digitoTst={parte_do_numero_do_processo[0].split("-")[1]}&'\
-		f'anoTst={parte_do_numero_do_processo[1]}&'\
-		f'orgaoTst={parte_do_numero_do_processo[2]}&'\
-		f'tribunalTst={parte_do_numero_do_processo[3]}&'\
-		f'varaTst={parte_do_numero_do_processo[4]}&'\
+		f'numeroTst={parte_do_numero_do_processo[0]}&'\
+		f'digitoTst={parte_do_numero_do_processo[1]}&'\
+		f'anoTst={parte_do_numero_do_processo[2]}&'\
+		f'orgaoTst={parte_do_numero_do_processo[3]}&'\
+		f'tribunalTst={parte_do_numero_do_processo[4]}&'\
+		f'varaTst={parte_do_numero_do_processo[5]}&'\
 		'submit=Consultar'
 
 		driver.get(url)
-		time.sleep(1)
 		celulas = driver.find_elements(By.CLASS_NAME, 'historicoProcesso')
 		dados_ultima_movimentacao.append(celulas[1].text)
 		dados_ultima_movimentacao.append(celulas[2].text)
@@ -98,4 +98,8 @@ def processar_planilha():
 
 	escrever_dados_na_planilha(dados_data, dados_fase)
 
+tempo_inicial = time.time()
 processar_planilha()
+tempo_final = time.time()
+tempo_total = tempo_final - tempo_inicial
+print(f"Tempo de execução: {tempo_total:.5f} segundos")
