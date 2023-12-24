@@ -11,6 +11,9 @@ import time
 
 from datetime import datetime
 
+from openpyxl import Workbook
+from openpyxl.utils.dataframe import dataframe_to_rows
+
 def get_dados_da_ultima_movimentacao(numero_processo):
 	options = Options()
 	options.add_argument('--headless')
@@ -32,7 +35,7 @@ def get_dados_da_ultima_movimentacao(numero_processo):
 	'submit=Consultar'
 
 	driver.get(url)
-	time.sleep(5)
+	time.sleep(1)
 	celulas = driver.find_elements(By.CLASS_NAME, 'historicoProcesso')
 
 	dados_ultima_movimentacao = []
@@ -45,28 +48,31 @@ def recuperar_processos_do_dataframe(df):
 	if 0 in df.columns:
 		return df[1].tolist()
 
-def criar_dataframe_da_planilha(criar_dataframe_da_planilha):
+def criar_dataframe_da_planilha():
 	caminho_do_arquivo = './src/consultas/tst_num_unica/planilha.xlsx'
-	df = pd.read_excel(caminho_do_arquivo, header=None, skiprows=criar_dataframe_da_planilha)
+	df = pd.read_excel(caminho_do_arquivo, header=None, skiprows=4)
 	return df
 
-def escrever_dados_na_linha_da_planilha(dados, df, index, coluna_nome):
-	caminho_do_arquivo = './src/consultas/tst_num_unica/planilha.xlsx'
-	df.at[index, coluna_nome] = dados
-	df.to_excel(caminho_do_arquivo, index=False)
+def escrever_dados_na_planilha(dados_data, dados_fase):
+	df = pd.DataFrame({'DATA DO ANDAMENTO ': dados_data, 'FASE ATUAL': dados_fase})
+	wb = Workbook()
+	ws = wb.active
+	for r in dataframe_to_rows(df, index=True, header=True):
+	    ws.append(r)
+	wb.save("./src/consultas/tst_num_unica/planilha-out.xlsx")
 
-linhas_offset = 4
-df = criar_dataframe_da_planilha(linhas_offset)
+df = criar_dataframe_da_planilha()
 lista_processos = recuperar_processos_do_dataframe(df)
-index = linhas_offset;
-
-print(df)
+dados_data = []
+dados_fase = []
 
 for numero_processo in lista_processos:
-	index += 1
 	if len(numero_processo) == 25:
+		print(numero_processo)
 		dados_ultima_movimentacao = get_dados_da_ultima_movimentacao(numero_processo)
-		escrever_dados_na_linha_da_planilha(dados_ultima_movimentacao[0], df, index, 'E')
-		escrever_dados_na_linha_da_planilha(dados_ultima_movimentacao[1], df, index, 'F')
+		dados_data.append(dados_ultima_movimentacao[0])
+		dados_fase.append(dados_ultima_movimentacao[1])
 	else:
 		print(f'Numero de processo inválido: {numero_processo}')
+
+escrever_dados_na_planilha(dados_data, dados_fase)
