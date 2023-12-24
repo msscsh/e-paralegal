@@ -9,8 +9,6 @@ import pandas as pd
 
 import time
 
-from datetime import datetime
-
 from openpyxl import Workbook
 from openpyxl.utils.dataframe import dataframe_to_rows
 
