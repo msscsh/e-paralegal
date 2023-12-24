@@ -54,6 +54,10 @@ def recuperar_processos_do_dataframe(df):
 	if 0 in df.columns:
 		return df[1].tolist()
 
+def recuperar_processos_ignorados():
+	lista_de_ignorados = []
+	return lista_de_ignorados
+
 def criar_dataframe_da_planilha():
 	caminho_do_arquivo = './src/consultas/tst_num_unica/planilha.xlsx'
 	df = pd.read_excel(caminho_do_arquivo, header=None, skiprows=4)
@@ -67,26 +71,32 @@ def escrever_dados_na_planilha(dados_data, dados_fase):
 	    ws.append(r)
 	wb.save("./src/consultas/tst_num_unica/planilha-out.xlsx")
 
-df = criar_dataframe_da_planilha()
-lista_processos = recuperar_processos_do_dataframe(df)
-dados_data = []
-dados_fase = []
-index = 0
+def processar_planilha():
+	df = criar_dataframe_da_planilha()
+	lista_processos = recuperar_processos_do_dataframe(df)
+	lista_processos_ignorados = recuperar_processos_ignorados()
+	dados_data = []
+	dados_fase = []
+	index = 0
 
-while index < len(lista_processos):
-	numero_processo = lista_processos[index]
-
-	if len(numero_processo) == 25:
+	while index < len(lista_processos):
+		numero_processo = lista_processos[index]
 		print(f'Index: {index} Processo: {numero_processo}')
-		dados_ultima_movimentacao = get_dados_da_ultima_movimentacao(numero_processo)
-
-		if len(dados_ultima_movimentacao) > 0:
-			index += 1
-			dados_data.append(dados_ultima_movimentacao[0])
-			dados_fase.append(dados_ultima_movimentacao[1])
+		if numero_processo in lista_processos_ignorados:
+			print(f'Ignorando processo: {numero_processo}')
+			dados_data.append(' ')
+			dados_fase.append(' ')
+		elif len(numero_processo) == 25:
+			dados_ultima_movimentacao = get_dados_da_ultima_movimentacao(numero_processo)
+			if len(dados_ultima_movimentacao) > 0:
+				index += 1
+				dados_data.append(dados_ultima_movimentacao[0])
+				dados_fase.append(dados_ultima_movimentacao[1])
+			else:
+				time.sleep(5)
 		else:
-			time.sleep(5)
-	else:
-		print(f'Numero de processo inválido: {numero_processo}')
+			print(f'Numero de processo inválido: {numero_processo}')
 
-escrever_dados_na_planilha(dados_data, dados_fase)
+	escrever_dados_na_planilha(dados_data, dados_fase)
+
+processar_planilha()
