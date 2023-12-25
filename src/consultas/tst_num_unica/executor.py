@@ -43,14 +43,24 @@ def get_dados_da_ultima_movimentacao(numero_processo):
 
 		if current_url != url:
 			print('Fomos redirecionado')
+			celulas = driver.find_elements(By.TAG_NAME, 'button')
+			print(celulas)
+			print(celulas[2].text)
+			celulas[2].click()
+			time.sleep(2)
+			current_url = driver.current_url
+			print(current_url)
+			img = driver.find_element(By.ID, 'imagemCaptcha')
+			print(img.get_attribute('src').split(',')[1].strip())
+			print('to be continued...')
 			dados_ultima_movimentacao.append(' ')
 			dados_ultima_movimentacao.append(' ')
 			return dados_ultima_movimentacao
+		else:
+			celulas = driver.find_elements(By.CLASS_NAME, 'historicoProcesso')
+			dados_ultima_movimentacao.append(celulas[1].text)
+			dados_ultima_movimentacao.append(celulas[2].text)
 
-
-		celulas = driver.find_elements(By.CLASS_NAME, 'historicoProcesso')
-		dados_ultima_movimentacao.append(celulas[1].text)
-		dados_ultima_movimentacao.append(celulas[2].text)
 	except Exception  as e:
 		print(f'Erro: {e}')
 	finally:
@@ -80,7 +90,7 @@ def processar_planilha():
 	lista_processos = recuperar_processos_do_dataframe(df)
 	dados_data = []
 	dados_fase = []
-	index = 748
+	index = 0
 
 	while index < len(lista_processos):
 		numero_processo = lista_processos[index]
