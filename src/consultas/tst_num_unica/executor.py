@@ -38,6 +38,16 @@ def get_dados_da_ultima_movimentacao(numero_processo):
 		'submit=Consultar'
 
 		driver.get(url)
+		time.sleep(2)
+		current_url = driver.current_url
+
+		if current_url != url:
+			print('Fomos redirecionado')
+			dados_ultima_movimentacao.append(' ')
+			dados_ultima_movimentacao.append(' ')
+			return dados_ultima_movimentacao
+
+
 		celulas = driver.find_elements(By.CLASS_NAME, 'historicoProcesso')
 		dados_ultima_movimentacao.append(celulas[1].text)
 		dados_ultima_movimentacao.append(celulas[2].text)
@@ -51,10 +61,6 @@ def get_dados_da_ultima_movimentacao(numero_processo):
 def recuperar_processos_do_dataframe(df):
 	if 0 in df.columns:
 		return df[1].tolist()
-
-def recuperar_processos_ignorados():
-	lista_de_ignorados = []
-	return lista_de_ignorados
 
 def criar_dataframe_da_planilha():
 	caminho_do_arquivo = './src/consultas/tst_num_unica/planilha.xlsx'
@@ -72,21 +78,14 @@ def escrever_dados_na_planilha(dados_data, dados_fase):
 def processar_planilha():
 	df = criar_dataframe_da_planilha()
 	lista_processos = recuperar_processos_do_dataframe(df)
-	lista_processos_ignorados = recuperar_processos_ignorados()
 	dados_data = []
 	dados_fase = []
-	index = 0
+	index = 748
 
 	while index < len(lista_processos):
 		numero_processo = lista_processos[index]
 		print(f'Index: {index} Processo: {numero_processo}')
 		numero_processo = numero_processo.zfill(25)
-
-		if numero_processo in lista_processos_ignorados:
-			print(f'Ignorando processo: {numero_processo}')
-			dados_data.append(' ')
-			dados_fase.append(' ')
-			index += 1
 
 		dados_ultima_movimentacao = get_dados_da_ultima_movimentacao(numero_processo)
 		if len(dados_ultima_movimentacao) > 0:
