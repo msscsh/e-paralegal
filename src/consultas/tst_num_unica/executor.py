@@ -1,4 +1,4 @@
-import re, time
+import re, time, requests
 
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -12,16 +12,33 @@ import pandas as pd
 from openpyxl import Workbook
 from openpyxl.utils.dataframe import dataframe_to_rows
 
+def criar_driver():
+	options = Options()
+	options.add_argument('--headless')
+	options.add_argument('--no-sandbox')
+	options.add_argument('--disable-dev-shm-usage')
+	driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+	return driver
+
+def resolver_processo_pje(numero_processo):
+	url_pje_consulta_id = f'https://pje.tst.jus.br/pje-consulta-api/api/processos/dadosbasicos/{numero_processo}'
+	headers = {
+    	'X-Grau-Instancia': '3',
+    	'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36'
+	}
+	response = requests.get(url_pje_consulta_id, headers=headers)
+	print(response.text)
+
+	dados_ultima_movimentacao.append(' ')
+	dados_ultima_movimentacao.append(' ')
+	return dados_ultima_movimentacao
+
 def get_dados_da_ultima_movimentacao(numero_processo):
 
 	dados_ultima_movimentacao = []
+	driver = criar_driver()
 
 	try:
-		options = Options()
-		options.add_argument('--headless')
-		options.add_argument('--no-sandbox')
-		options.add_argument('--disable-dev-shm-usage')
-		driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 
 		texto_formatado = re.sub(r'[^0-9]', '.', numero_processo)
 		parte_do_numero_do_processo = texto_formatado.split('.')
@@ -43,19 +60,7 @@ def get_dados_da_ultima_movimentacao(numero_processo):
 
 		if current_url != url:
 			print('Fomos redirecionado')
-			celulas = driver.find_elements(By.TAG_NAME, 'button')
-			print(celulas)
-			print(celulas[2].text)
-			celulas[2].click()
-			time.sleep(2)
-			current_url = driver.current_url
-			print(current_url)
-			img = driver.find_element(By.ID, 'imagemCaptcha')
-			print(img.get_attribute('src').split(',')[1].strip())
-			print('to be continued...')
-			dados_ultima_movimentacao.append(' ')
-			dados_ultima_movimentacao.append(' ')
-			return dados_ultima_movimentacao
+			return resolver_processo_pje(numero_processo)
 		else:
 			celulas = driver.find_elements(By.CLASS_NAME, 'historicoProcesso')
 			dados_ultima_movimentacao.append(celulas[1].text)
@@ -90,7 +95,7 @@ def processar_planilha():
 	lista_processos = recuperar_processos_do_dataframe(df)
 	dados_data = []
 	dados_fase = []
-	index = 0
+	index = 748
 
 	while index < len(lista_processos):
 		numero_processo = lista_processos[index]
